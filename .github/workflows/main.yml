@@ -29,7 +29,7 @@ jobs:
       with:
         context: ./dockerfolder
         push: true
-        tags: santhoshkumar191020/fleet:latest
+        tags: santhoshkumar191020/fleet1:latest
 
     - name: SSH into DigitalOcean Droplet and deploy
       uses: appleboy/ssh-action@master
@@ -37,6 +37,8 @@ jobs:
         host: ${{ secrets.DROPLET_IP }}
         username: ${{ secrets.DROPLET_USERNAME }}
         key: ${{ secrets.SSH_PRIVATE_KEY }}
+        # Passphrase to unlock the SSH private key
+        passphrase: ${{ secrets.SSH_PASSPHRASE }}
         script: |
           # Pull the Docker image
           docker pull santhoshkumar191020/fleet:latest
