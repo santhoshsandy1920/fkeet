@@ -47,7 +47,7 @@ jobs:
           chmod 600 ~/.ssh/id_rsa
 
           # Use sudo to change ownership of SSH private key
-          sudo chown ${{ runner.username }}:~/.ssh/id_rsa
+          sudo chown ${{ runner.username }} ~/.ssh/id_rsa
 
           # Use SSH agent to add the private key
           eval "$(ssh-agent -s)"
