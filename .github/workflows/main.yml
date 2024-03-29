@@ -46,9 +46,5 @@ jobs:
           # Set correct permissions for SSH private key
           chmod 600 ~/.ssh/id_rsa
 
-          # Use SSH agent to add the private key
-          eval "$(ssh-agent -s)"
-          ssh-add ~/.ssh/id_rsa < <(echo -e "${{ secrets.SSH_PASSPHRASE }}")
-
           # Copy the Docker image to the desired folder on the droplet
           docker save santhoshkumar191020/fleet2:latest | ssh -i ~/.ssh/id_rsa ${{ secrets.DROPLET_USERNAME }}@${{ secrets.DROPLET_IP }} "docker load"
