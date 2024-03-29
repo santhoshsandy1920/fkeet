@@ -32,7 +32,7 @@ jobs:
           tags: santhoshkumar191020/fleet2:latest
 
       - name: Add DigitalOcean Droplet's host key to known_hosts
-        run: ssh-keyscan -H ${{ secrets.DROPLET_HOSTNAME }} >> ~/.ssh/known_hosts
+        run: ssh-keyscan -H ${{ secrets.DROPLET_IP }} >> ~/.ssh/known_hosts
 
       - name: SSH into DigitalOcean Droplet and deploy
         uses: appleboy/ssh-action@master
