@@ -32,21 +32,20 @@ jobs:
           tags: santhoshkumar191020/fleet2:latest
 
       - name: SSH into DigitalOcean Droplet and deploy
-        uses: appleboy/ssh-action@master
-        with:
-          host: ${{ secrets.DROPLET_IP }}
-          username: ${{ secrets.DROPLET_USERNAME }}
-          key: ${{ secrets.SSH_PRIVATE_KEY }}
-          # Passphrase to unlock the SSH private key
-          passphrase: ${{ secrets.SSH_PASSPHRASE }}
-          # Disable strict host key checking
-          options: "-o StrictHostKeyChecking=no"
-          script: |
-            # Pull the Docker image
-            docker pull santhoshkumar191020/fleet2:latest
+        run: |
+          # Pull the Docker image
+          docker pull santhoshkumar191020/fleet2:latest
 
-            # Create the target directory on the droplet if it doesn't exist
-            ssh ${{ secrets.DROPLET_USERNAME }}@${{ secrets.DROPLET_IP }} "mkdir -p /root/github"
+          # Add DigitalOcean droplet's host key to known_hosts file
+          mkdir -p ~/.ssh
+          ssh-keyscan -H ${{ secrets.DROPLET_IP }} >> ~/.ssh/known_hosts
 
-            # Copy the Docker image to the desired folder on the droplet
-            docker save santhoshkumar191020/fleet2:latest | ssh ${{ secrets.DROPLET_USERNAME }}@${{ secrets.DROPLET_IP }} "docker load"
+          # Create the target directory on the droplet if it doesn't exist
+          ssh ${{ secrets.DROPLET_USERNAME }}@${{ secrets.DROPLET_IP }} "mkdir -p /root/github"
+
+          # Copy the Docker image to the desired folder on the droplet
+          docker save santhoshkumar191020/fleet2:latest | ssh ${{ secrets.DROPLET_USERNAME }}@${{ secrets.DROPLET_IP }} "docker load"
+        env:
+          DOCKER_CONFIG: ~/.docker
+          DOCKER_HOST: tcp://localhost:2375
+          DOCKER_TLS_CERTDIR: ''
