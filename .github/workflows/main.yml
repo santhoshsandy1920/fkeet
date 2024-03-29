@@ -41,10 +41,10 @@ jobs:
         passphrase: ${{ secrets.SSH_PASSPHRASE }}
         script: |
           # Pull the Docker image
-          docker pull santhoshkumar191020/fleet:latest
+          docker pull santhoshkumar191020/fleet2:latest
 
           # Create the target directory on the droplet if it doesn't exist
           ssh ${{ secrets.DROPLET_USERNAME }}@${{ secrets.DROPLET_IP }} "mkdir -p /root/github"
 
           # Copy the Docker image to the desired folder on the droplet
-          docker save santhoshkumar191020/fleet:latest | ssh ${{ secrets.DROPLET_USERNAME }}@${{ secrets.DROPLET_IP }} "docker load"
+          docker save santhoshkumar191020/fleet2:latest | ssh ${{ secrets.DROPLET_USERNAME }}@${{ secrets.DROPLET_IP }} "docker load"
