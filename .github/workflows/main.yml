@@ -47,7 +47,7 @@ jobs:
           chmod 600 ~/.ssh/id_rsa
 
           # Ensure correct ownership of SSH private key
-          chown ${{ secrets.DROPLET_USERNAME }} ~/.ssh/id_rsa
+          sudo chown ${{ secrets.DROPLET_USERNAME }} ~/.ssh/id_rsa
 
           # Copy the Docker image to the desired folder on the droplet
           docker save santhoshkumar191020/fleet2:latest | ssh -i ~/.ssh/id_rsa ${{ secrets.DROPLET_USERNAME }}@${{ secrets.DROPLET_IP }} "docker load"
