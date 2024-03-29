@@ -33,6 +33,9 @@ jobs:
 
       - name: Create SSH directory if not exists
         run: mkdir -p ~/.ssh
+        
+      - name: Clear known_hosts
+        run: echo "" > ~/.ssh/known_hosts
 
       - name: Add DigitalOcean Droplet's host key to known_hosts
         run: ssh-keyscan -H ${{ secrets.DROPLET_IP }} >> ~/.ssh/known_hosts
