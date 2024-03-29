@@ -1,44 +1,25 @@
 name: Deploy to DigitalOcean Droplet
-
-on:
+'on':
   push:
     branches:
       - main
 
 jobs:
-  build:
+  deploy:
     runs-on: ubuntu-latest
-
     steps:
-      - name: Checkout repository
-        uses: actions/checkout@v2
-
-      - name: Set up Node.js
-        uses: actions/setup-node@v2
+      - name: Deploy to DigitalOcean Droplet
+        uses: appleboy/ssh-action@master
         with:
-          node-version: '14'
-
-      - name: Login to Docker Hub
-        uses: docker/login-action@v2
-        with:
-          username: santhoshkumar191020
-          password: ${{ secrets.DOCKERHUB_TOKEN }}
-
-      - name: Build and push Docker image
-        uses: docker/build-push-action@v4
-        with:
-          context: ./dockerfolder
-          push: true
-          tags: santhoshkumar191020/fleet2:latest
-
-      - name: SSH into DigitalOcean Droplet and deploy
-        run: |
-          # Pull the Docker image
-          docker pull santhoshkumar191020/fleet2:latest
-
-          # Add DigitalOcean droplet's host key to known_hosts file
-          mkdir -p ~/.ssh
-          ssh-keyscan -H ${{ secrets.DROPLET_IP }} >> ~/.ssh/known_hosts
-
-          # Copy the Docker image to the desired folder on the droplet
-          docker save santhoshkumar191020/fleet2:latest | ssh -i ~/.ssh/id_rsa ${{ secrets.DROPLET_USERNAME }}@${{ secrets.DROPLET_IP }} "docker load"
+          host: ${{secrets.DROPLET_IP}}
+          username: ${{secrets.DROPLET_USERNAME}}
+          key: ${{secrets.SSH_PRIVATE_KEY}}
+          passphrase: ${{ secrets.SSH_PASSPHRASE }}
+          script: |
+            export NVM_DIR=~/.nvm
+            source ~/.nvm/nvm.sh
+            rm -rf test
+            mkdir test
+            cd test
+            https://github.com/santhoshsandy1920/fkeet.git
+            echo 'Deployment to digital ocean finished'
