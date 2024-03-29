@@ -1,5 +1,6 @@
 name: Deploy to DigitalOcean Droplet
-'on':
+
+on:
   push:
     branches:
       - main
@@ -14,12 +15,26 @@ jobs:
           host: ${{secrets.DROPLET_IP}}
           username: ${{secrets.DROPLET_USERNAME}}
           key: ${{secrets.SSH_PRIVATE_KEY}}
-          passphrase: ${{ secrets.SSH_PASSPHRASE }}
+          passphrase: ${{secrets.SSH_PASSPHRASE }}
           script: |
-            export NVM_DIR=~/.nvm
-            source ~/.nvm/nvm.sh
-            rm -rf test
-            mkdir test
-            cd test
-            https://github.com/santhoshsandy1920/fkeet.git
-            echo 'Deployment to digital ocean finished'
+            # Ensure NVM is installed and load it
+            curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.39.0/install.sh | bash
+            export NVM_DIR="$HOME/.nvm"
+            [ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"
+
+            # Install Node.js (adjust version as needed)
+            nvm install node
+
+            # Create a directory for the Node.js application
+            mkdir node-app
+            cd node-app
+
+            # Clone the Git repository
+            git clone https://github.com/santhoshsandy1920/fleet.git
+
+            # Navigate into the repository directory
+            cd fleet
+
+            # Install dependencies and start the Node.js application
+            npm install
+            npm start
