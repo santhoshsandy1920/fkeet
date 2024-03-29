@@ -6,35 +6,45 @@ on:
       - main
 
 jobs:
-  deploy:
+  build:
     runs-on: ubuntu-latest
+
     steps:
-      - name: Deploy to DigitalOcean Droplet
+      - name: Checkout repository
+        uses: actions/checkout@v2
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v2
+        with:
+          node-version: '14'
+
+      - name: Login to Docker Hub
+        uses: docker/login-action@v2
+        with:
+          username: santhoshkumar191020
+          password: ${{ secrets.DOCKERHUB_TOKEN }}
+
+      - name: Build and push Docker image
+        uses: docker/build-push-action@v4
+        with:
+          context: ./dockerfolder
+          push: true
+          tags: santhoshkumar191020/fleet2:latest
+
+      - name: SSH into DigitalOcean Droplet and deploy
         uses: appleboy/ssh-action@master
         with:
-          host: ${{secrets.DROPLET_IP}}
-          username: ${{secrets.DROPLET_USERNAME}}
-          key: ${{secrets.SSH_PRIVATE_KEY}}
-          passphrase: ${{secrets.SSH_PASSPHRASE }}
+          host: ${{ secrets.DROPLET_IP }}
+          username: ${{ secrets.DROPLET_USERNAME }}
+          key: ${{ secrets.SSH_PRIVATE_KEY }}
+          # Passphrase to unlock the SSH private key
+          passphrase: ${{ secrets.SSH_PASSPHRASE }}
           script: |
-            # Ensure NVM is installed and load it
-            curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.39.0/install.sh | bash
-            export NVM_DIR="$HOME/.nvm"
-            [ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"
+            # Pull the Docker image
+            docker pull santhoshkumar191020/fleet2:latest
 
-            # Install Node.js (adjust version as needed)
-            nvm install node
+            # Create the target directory on the droplet if it doesn't exist
+            ssh ${{ secrets.DROPLET_USERNAME }}@${{ secrets.DROPLET_IP }} "mkdir -p /root/github"
 
-            # Create a directory for the Node.js application
-            mkdir node-app
-            cd node-app
-
-            # Clone the Git repository
-            git clone https://github.com/santhoshsandy1920/fleet.git
-
-            # Navigate into the repository directory
-            cd fleet
-
-            # Install dependencies and start the Node.js application
-            npm install
-            npm start
+            # Copy the Docker image to the desired folder on the droplet
+            docker save santhoshkumar191020/fleet2:latest | ssh ${{ secrets.DROPLET_USERNAME }}@${{ secrets.DROPLET_IP }} "docker load"
