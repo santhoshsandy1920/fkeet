@@ -10,41 +10,43 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-    - name: Checkout repository
-      uses: actions/checkout@v2
+      - name: Checkout repository
+        uses: actions/checkout@v2
 
-    - name: Set up Node.js
-      uses: actions/setup-node@v2
-      with:
-        node-version: '14' # Choose the appropriate Node.js version
+      - name: Set up Node.js
+        uses: actions/setup-node@v2
+        with:
+          node-version: '14'
 
-    - name: Login to Docker Hub
-      uses: docker/login-action@v2
-      with:
-        username: santhoshkumar191020
-        password: ${{ secrets.DOCKERHUB_TOKEN }} # Use a GitHub secret for your Docker Hub password
+      - name: Login to Docker Hub
+        uses: docker/login-action@v2
+        with:
+          username: santhoshkumar191020
+          password: ${{ secrets.DOCKERHUB_TOKEN }}
 
-    - name: Build and push Docker image
-      uses: docker/build-push-action@v4
-      with:
-        context: ./dockerfolder
-        push: true
-        tags: santhoshkumar191020/fleet2:latest
+      - name: Build and push Docker image
+        uses: docker/build-push-action@v4
+        with:
+          context: ./dockerfolder
+          push: true
+          tags: santhoshkumar191020/fleet2:latest
 
-    - name: SSH into DigitalOcean Droplet and deploy
-      uses: appleboy/ssh-action@master
-      with:
-        host: ${{ secrets.DROPLET_IP }}
-        username: ${{ secrets.DROPLET_USERNAME }}
-        key: ${{ secrets.SSH_PRIVATE_KEY }}
-        # Passphrase to unlock the SSH private key
-        passphrase: ${{ secrets.SSH_PASSPHRASE }}
-        script: |
-          # Pull the Docker image
-          docker pull santhoshkumar191020/fleet2:latest
+      - name: SSH into DigitalOcean Droplet and deploy
+        uses: appleboy/ssh-action@master
+        with:
+          host: ${{ secrets.DROPLET_IP }}
+          username: ${{ secrets.DROPLET_USERNAME }}
+          key: ${{ secrets.SSH_PRIVATE_KEY }}
+          # Passphrase to unlock the SSH private key
+          passphrase: ${{ secrets.SSH_PASSPHRASE }}
+          # Disable strict host key checking
+          options: "-o StrictHostKeyChecking=no"
+          script: |
+            # Pull the Docker image
+            docker pull santhoshkumar191020/fleet2:latest
 
-          # Create the target directory on the droplet if it doesn't exist
-          ssh ${{ secrets.DROPLET_USERNAME }}@${{ secrets.DROPLET_IP }} "mkdir -p /root/github"
+            # Create the target directory on the droplet if it doesn't exist
+            ssh ${{ secrets.DROPLET_USERNAME }}@${{ secrets.DROPLET_IP }} "mkdir -p /root/github"
 
-          # Copy the Docker image to the desired folder on the droplet
-          docker save santhoshkumar191020/fleet2:latest | ssh ${{ secrets.DROPLET_USERNAME }}@${{ secrets.DROPLET_IP }} "docker load"
+            # Copy the Docker image to the desired folder on the droplet
+            docker save santhoshkumar191020/fleet2:latest | ssh ${{ secrets.DROPLET_USERNAME }}@${{ secrets.DROPLET_IP }} "docker load"
